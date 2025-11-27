@@ -1,0 +1,55 @@
+name: Deploy to Hosting
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # الخطوة 1: إعداد بيئة Node.js
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x' # يمكنك تغيير هذا الإصدار حسب حاجتك
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json' # تأكد من أن هذا المسار صحيح
+
+      # الخطوة 2: استعادة الذاكرة المؤقتة (Cache)
+      # تم دمج هذه الخطوة مع إعداد Node.js في الإصدار v4، ولكن يمكن إبقاؤها منفصلة إذا لزم الأمر
+      # إذا كنت تستخدم actions/setup-node@v4 مع cache: 'npm'، فإنه يتولى Cache تلقائيًا
+      # إذا كنت تفضل استخدام actions/cache@v4.3.0 بشكل منفصل، يجب أن تكون هكذا:
+      # - name: Cache
+      #   uses: actions/cache@v4.3.0
+      #   with:
+      #     path: ~/.npm # أو المسار الذي تخزن فيه الحزم
+      #     key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-node-
+
+      # الخطوة 3: تثبيت الاعتمادات
+      - name: Install Dependencies
+        run: npm install
+
+      # الخطوة 4: بناء المشروع (إذا كان مشروع React/Next.js/Vue)
+      - name: Build Project
+        run: npm run build # تأكد من أن هذا الأمر صحيح في package.json
+
+      # الخطوة 5: النشر (مثال على النشر إلى Firebase Hosting)
+      # يجب استبدال هذا الجزء بأمر النشر الفعلي الخاص بك (مثل Firebase أو Vercel أو غيره)
+      # إذا كنت تستخدم Firebase، ستحتاج إلى إعداد Firebase CLI ورمز النشر (Deploy Token)
+      # - name: Deploy to Firebase
+      #   uses: FirebaseExtended/action-hosting-deploy@v0
+      #   with:
+      #     repoToken: '${{ secrets.GITHUB_TOKEN }}'
+      #     firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_DR_APPOINTMENTS_HUB }}' # استبدل باسم حساب الخدمة الخاص بك
+      #     channelId: live
+      #     projectId: dr-appointments-hub # استبدل باسم مشروعك
+      
+      # مثال على خطوة نشر عامة (إذا كنت تستخدم أداة نشر أخرى)
+      - name: Deploy
+        run: echo "Deployment command goes here" # استبدل هذا بأمر النشر الفعلي الخاص بك
